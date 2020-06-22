@@ -62,15 +62,15 @@ func main() {
 	}
 
 	// insert into database
-	// now := time.Now() // used to create createdAt / updatedAt timestamps
+	now := time.Now() // used to create createdAt / updatedAt timestamps
 
-	// res, err := db.Exec(`insert into "TODOTestSchema".todos (topic, description, completed, createdAt, updatedAt) values ($1, $2, $3, $4, $5)`,
-	// 	"Multivariate Calcalus", "Hone up my Machine Learning Kung Fu", false, now, now)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// affected, _ := res.RowsAffected()
-	// log.Printf("Rows affected %d\n", affected)
+	res, err := db.Exec(`insert into "TODOTestSchema".todos (topic, description, completed, createdAt, updatedAt) values ($1, $2, $3, $4, $5)`,
+		"Multivariate Calcalus", "Hone up my Machine Learning Kung Fu", false, now, now)
+	if err != nil {
+		log.Fatal(err)
+	}
+	affected, _ := res.RowsAffected()
+	log.Printf("Rows affected %d\n", affected)
 
 }
 
