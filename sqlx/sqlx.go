@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -27,7 +28,21 @@ type Todo struct {
 	Description string    `db:"description"`
 	Completed   bool      `db:"completed"`
 	CreatedAt   time.Time `db:"createdat"`
-	// UpdatedAt   time.Time
+	UpdatedAt   NullTime  `db:"updatedat"`
+}
+
+// NullTime is an alias for sql.NullTime data type
+type NullTime struct {
+	sql.NullTime
+}
+
+// MarshalSON for NullTime
+func (nt *NullTime) MarshalSON() ([]byte, error) {
+	if !nt.Valid {
+		return []byte("null"), nil
+	}
+	val := fmt.Sprintf("\"%s\"", nt.Time.Format(time.RFC3339))
+	return []byte(val), nil
 }
 
 func main() {
@@ -35,18 +50,7 @@ func main() {
 	initDB()
 	defer db.Close()
 
-	// query database for multiple columns
-	todos := []Todo{}
-	db.Select(&todos, `select taskid, topic, description, completed, createdat from "TODOTestSchema".todos`)
-	for _, todo := range todos {
-
-		log.Printf("TaskID: %v\n", todo.TaskID)
-		log.Printf("Topic: %v\n", todo.Topic)
-		log.Printf("Description: %v\n", todo.Description)
-		log.Printf("Completed: %v\n", todo.Completed)
-		log.Printf("CreatedAt: %v\n", todo.CreatedAt)
-	}
-
+	// Simulating Atomicity when inserting records into the database.
 	// transactions begins
 	tx := db.MustBegin()
 	now := time.Now()
@@ -60,6 +64,20 @@ func main() {
 		t.Topic, t.Description, t.Completed, t.CreatedAt)
 	tx.Commit()
 	// transaction ends
+
+	// dealing with NULLable columns
+	myTodos := []Todo{}
+	db.Select(&myTodos, `select * from "TODOTestSchema".todos`)
+
+	for _, todo := range myTodos {
+
+		log.Printf("TaskID: %v\n", todo.TaskID)
+		log.Printf("Topic: %v\n", todo.Topic)
+		log.Printf("Description: %v\n", todo.Description)
+		log.Printf("Completed: %v\n", todo.Completed)
+		log.Printf("CreatedAt: %v\n", todo.CreatedAt)
+		log.Printf("UpdatedAt: %v\n", todo.UpdatedAt)
+	}
 
 }
 
