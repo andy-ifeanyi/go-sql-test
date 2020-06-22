@@ -23,27 +23,27 @@ const (
 
 // Todo list ...
 type Todo struct {
-	TaskID      int       `db:"taskid"`
-	Topic       string    `db:"topic"`
-	Description string    `db:"description"`
-	Completed   bool      `db:"completed"`
-	CreatedAt   time.Time `db:"createdat"`
-	UpdatedAt   NullTime  `db:"updatedat"`
+	TaskID      int          `db:"taskid"`
+	Topic       string       `db:"topic"`
+	Description string       `db:"description"`
+	Completed   bool         `db:"completed"`
+	CreatedAt   time.Time    `db:"createdat"`
+	UpdatedAt   sql.NullTime `db:"updatedat"`
 }
 
-// NullTime is an alias for sql.NullTime data type
-type NullTime struct {
-	sql.NullTime
-}
+// // NullTime is an alias for sql.NullTime data type
+// type NullTime struct {
+// 	sql.NullTime
+// }
 
-// MarshalSON for NullTime
-func (nt *NullTime) MarshalSON() ([]byte, error) {
-	if !nt.Valid {
-		return []byte("null"), nil
-	}
-	val := fmt.Sprintf("\"%s\"", nt.Time.Format(time.RFC3339))
-	return []byte(val), nil
-}
+// // MarshalSON for NullTime
+// func (nt *NullTime) MarshalSON() ([]byte, error) {
+// 	if !nt.Valid {
+// 		return []byte("null"), nil
+// 	}
+// 	val := fmt.Sprintf("\"%s\"", nt.Time.Format(time.RFC3339))
+// 	return []byte(val), nil
+// }
 
 func main() {
 
