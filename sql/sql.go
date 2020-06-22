@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -19,23 +20,57 @@ const (
 	dbName = "DBNAME"
 )
 
+// Todo list ...
+type Todo struct {
+	TaskID      int
+	Topic       string
+	Description string
+	Completed   bool
+	CreatedAt   time.Time
+	// UpdatedAt   time.Time
+}
+
 func main() {
 
 	initDB()
 	defer db.Close()
 
-	var todoTitle string
+	// var todoTitle string
 
-	// rows, err := db.Query("select title from todos")
-	rows, err := db.Query(`select title from "TODOTestSchema".todos`)
+	// query database for a single column
+	// rows, err := db.Query(`select title from "TODOTestSchema".todos`) // rows, err := db.Query("select title from todos")
 
+	// query database for multiple columns
+	rows, err := db.Query(`select taskid, topic, description, completed, createdat from "TODOTestSchema".todos`)
 	for rows.Next() {
-		rows.Scan(&todoTitle)
-		if err != nil {
+
+		todo := Todo{}
+
+		if err = rows.Scan(&todo.TaskID, &todo.Topic, &todo.Description, &todo.Completed, &todo.CreatedAt); err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("TODO: %s\n", todoTitle)
+
+		log.Printf("TaskID: %v\n", todo.TaskID)
+		log.Printf("Topic: %v\n", todo.Topic)
+		log.Printf("Description: %v\n", todo.Description)
+		log.Printf("Completed: %v\n", todo.Completed)
+		log.Printf("CreatedAt: %v\n", todo.CreatedAt)
 	}
+
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	// insert into database
+	// now := time.Now() // used to create createdAt / updatedAt timestamps
+
+	// res, err := db.Exec(`insert into "TODOTestSchema".todos (topic, description, completed, createdAt, updatedAt) values ($1, $2, $3, $4, $5)`,
+	// 	"Multivariate Calcalus", "Hone up my Machine Learning Kung Fu", false, now, now)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// affected, _ := res.RowsAffected()
+	// log.Printf("Rows affected %d\n", affected)
 
 }
 
